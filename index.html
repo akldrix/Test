@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Голосовой ввод</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding-top: 50px; }
+        #output { width: 80%; min-height: 100px; border: 1px solid #ccc; padding: 15px; margin-top: 20px; border-radius: 8px; }
+        .active { background-color: #ff4d4d; color: white; } /* Стиль для активной кнопки */
+        button { padding: 10px 20px; cursor: pointer; font-size: 16px; border-radius: 5px; border: none; background-color: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+    <button id="start-btn">Включить микрофон</button>
+    <div id="output">Ваш текст появится здесь...</div>
+
+    <script>
+        // Поддержка разных браузеров
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+            alert("Ваш браузер не поддерживает распознавание речи. Попробуйте Chrome или Edge.");
+        } else {
+            const recognition = new SpeechRecognition();
+            const btn = document.getElementById('start-btn');
+            const output = document.getElementById('output');
+
+            // Настройки
+            recognition.lang = 'ru-RU'; // Язык распознавания
+            recognition.interimResults = false; // Показывать ли промежуточные результаты
+
+            // Нажатие на кнопку
+            btn.addEventListener('click', () => {
+                try {
+                    recognition.start();
+                } catch (e) {
+                    // Если уже запущено, ничего не делаем
+                }
+            });
+
+            // Когда начали слушать
+            recognition.onstart = () => {
+                btn.textContent = 'Слушаю...';
+                btn.classList.add('active');
+            };
+
+            // Получение результата
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                output.textContent = text;
+            };
+
+            // Когда закончили слушать
+            recognition.onend = () => {
+                btn.textContent = 'Включить микрофон';
+                btn.classList.remove('active');
+            };
+
+            // Обработка ошибок
+            recognition.onerror = (event) => {
+                console.error('Ошибка:', event.error);
+                btn.textContent = 'Ошибка: ' + event.error;
+            };
+        }
+    </script>
+</body>
+</html>
