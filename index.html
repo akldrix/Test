@@ -46,18 +46,22 @@ if (!SpeechRecognition) {
     };
 
     recognition.onresult = (event) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-                finalTranscript += event.results[i][0].transcript;
-            }
+    let finalTranscript = ''; // Для утвержденного текста
+    let interimTranscript = ''; // Для текущего (меняющегося) слова
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+        } else {
+            interimTranscript += transcript;
         }
-        // Если текст пустой (начало работы), очищаем заглушку
-        if (output.textContent === 'Ваш текст появится здесь...') output.textContent = '';
-        
-        // Добавляем только новые финальные фразы
-        if (finalTranscript) output.textContent += finalTranscript + ' ';
-    };
+    }
+
+    // Выводим текст. Промежуточный текст можно подсветить серым для красоты
+    output.innerHTML = finalTranscript + '<i style="color: gray;">' + interimTranscript + '</i>';
+};
+
 
     recognition.onend = () => {
         isRecognizing = false;
