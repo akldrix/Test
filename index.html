@@ -47,8 +47,12 @@
 
             // Получение результата
             recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                output.textContent = text;
+const resultText ="";
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+        resultText += event.results[i][0].transcript;
+    }
+
+    output.textContent = resultText;
             };
 
             // Когда закончили слушать
