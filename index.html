@@ -47,8 +47,8 @@
 
             // Получение результата
             recognition.onresult = (event) => {
-const resultText ="";
-                for (let i = event.resultIndex; i < event.results.length; i++) {
+let resultText ="";
+                for (let i = 0; i < event.results.length; i++) {
         resultText += event.results[i][0].transcript;
     }
 
