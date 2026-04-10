@@ -16,58 +16,61 @@
     <div id="output">Ваш текст появится здесь...</div>
 
     <script>
-        // Поддержка разных браузеров
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
-        if (!SpeechRecognition) {
-            alert("Ваш браузер не поддерживает распознавание речи. Попробуйте Chrome или Edge.");
+
+if (!SpeechRecognition) {
+    alert("Ваш браузер не поддерживает распознавание речи.");
+} else {
+    const recognition = new SpeechRecognition();
+    const btn = document.getElementById('start-btn');
+    const output = document.getElementById('output');
+
+    recognition.lang = 'ru-RU';
+    recognition.interimResults = true;
+    recognition.continuous = true;
+
+    let isRecognizing = false;
+
+    btn.addEventListener('click', () => {
+        if (isRecognizing) {
+            recognition.stop();
         } else {
-            const recognition = new SpeechRecognition();
-            const btn = document.getElementById('start-btn');
-            const output = document.getElementById('output');
-
-            // Настройки
-            recognition.lang = 'ru-RU'; // Язык распознавания
-            recognition.interimResults = true; // Показывать ли промежуточные результаты
-recognition.continuous = true;
-
-            // Нажатие на кнопку
-            btn.addEventListener('click', () => {
-                try {
-                    recognition.start();
-                } catch (e) {
-                    // Если уже запущено, ничего не делаем
-                }
-            });
-
-            // Когда начали слушать
-            recognition.onstart = () => {
-                btn.textContent = 'Слушаю...';
-                btn.classList.add('active');
-            };
-
-            // Получение результата
-            recognition.onresult = (event) => {
-let resultText ="";
-                for (let i = 0; i < event.results.length; i++) {
-        resultText += event.results[i][0].transcript;
-    }
-
-    output.textContent = resultText;
-            };
-
-            // Когда закончили слушать
-            recognition.onend = () => {
-                btn.textContent = 'Включить микрофон';
-                btn.classList.remove('active');
-            };
-
-            // Обработка ошибок
-            recognition.onerror = (event) => {
-                console.error('Ошибка:', event.error);
-                btn.textContent = 'Ошибка: ' + event.error;
-            };
+            recognition.start();
         }
+    });
+
+    recognition.onstart = () => {
+        isRecognizing = true;
+        btn.textContent = 'Остановить запись';
+        btn.classList.add('active');
+    };
+
+    recognition.onresult = (event) => {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            }
+        }
+        // Если текст пустой (начало работы), очищаем заглушку
+        if (output.textContent === 'Ваш текст появится здесь...') output.textContent = '';
+        
+        // Добавляем только новые финальные фразы
+        if (finalTranscript) output.textContent += finalTranscript + ' ';
+    };
+
+    recognition.onend = () => {
+        isRecognizing = false;
+        btn.textContent = 'Включить микрофон';
+        btn.classList.remove('active');
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Ошибка:', event.error);
+        isRecognizing = false;
+    };
+}
+
     </script>
 </body>
 </html>
